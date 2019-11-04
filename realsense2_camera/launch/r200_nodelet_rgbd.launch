@@ -5,6 +5,7 @@
        All topics are pushed down into the "camera" namespace, and it is prepended to tf frame ids. -->
   <arg name="namespace"       default="Sauron"/>
   <arg name="camera"          default="camera" />
+  <arg name="camera_ns"          default="$(arg namespace)/$(arg camera)" />
 
   <!-- Type of RealSense camera -->
   <arg name="camera_type"     default="R200" />
@@ -58,7 +59,7 @@
   <arg name="num_worker_threads" default="4" />
 
   <!-- Push down all topics/nodelets into "camera" namespace -->
-  <group ns="$(arg namespace)/$(arg camera)">
+  <group ns="$(arg camera_ns)">
 
     <remap from="depth_registered/sw_registered/image_rect" to="depth_registered/image_raw"/>
     <remap from="depth_registered/sw_registered/camera_info" to="depth_registered/camera_info"/>
@@ -76,7 +77,7 @@
     <include if="$(arg load_driver)"
              file="$(find realsense_camera)/launch/includes/nodelet_rgbd.launch.xml">
       <arg name="manager"                   value="$(arg manager)" />
-      <arg name="camera"                    value="$(arg camera)" />
+      <arg name="camera"                    value="$(arg camera_ns)" />
       <arg name="camera_type"               value="$(arg camera_type)" />
       <arg name="serial_no"                 value="$(arg serial_no)" />
       <arg name="usb_port_id"               value="$(arg usb_port_id)" />
@@ -120,6 +121,14 @@
     <!-- <node pkg="topic_tools" type="drop" name="low_freq_depth"
         args="depth_registered/image_raw 1 2 depth_registered/image_raw_low_freq">
     </node> -->
+
+    <!-- PCL compression for bandwidth reduction on the network -->
+    <include file="$(find pcl_compression)/launch/grid_compression.launch"> 
+        <arg name="namespace" value="$(arg namespace)" />
+        <!-- <arg name="manager" value="$(arg manager)" /> -->
+        <arg name="input_topic" value="/$(arg namespace)/$(arg camera)/depth/points" />
+        <arg name="out_topic" value="/$(arg namespace)/$(arg camera)/depth/compressed_points" />
+    </include>
     
   </group> <!-- camera -->
 
