@@ -122,6 +122,7 @@
         args="depth_registered/image_raw 1 2 depth_registered/image_raw_low_freq">
     </node> -->
 
+
     <!-- PCL compression for bandwidth reduction on the network -->
     <include file="$(find pcl_compression)/launch/grid_compression.launch"> 
         <arg name="namespace" value="$(arg namespace)" />
